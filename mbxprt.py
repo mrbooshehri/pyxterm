@@ -6,11 +6,10 @@ sessions = {}
 
 # handel arguments
 parser = argparse.ArgumentParser(prog="mbxprt", description="Mobxterm session parser v.1")
-parser.add_argument("file", help="mobaxterm session export file")
-parser.add_argument("-w", "--windterm", help="Convert to windterm")
-# parser.add_argument("-r", "--remmina", help="Convert to remmina", nargs='?')
+# parser.add_argument("file", help="mobaxterm session export file")
+parser.add_argument("-w", "--windterm", help="Convert to windterm",  metavar="", required=False)
+parser.add_argument("-r", "--remmina", help="Convert to remmina", metavar="", required=False)
 args = parser.parse_args()
-print(args.file)
 
 # logging
 logging.basicConfig(filename='info.log',
@@ -20,11 +19,12 @@ logging.basicConfig(filename='info.log',
                     level=logging.DEBUG)
 
 # Get file from input
-if not os.path.exists(sys.argv[1]):
+if not os.path.exists(args.remmina):
     print("File not exists!")
     exit()
 else:
-    config_file = (os.path.abspath(sys.argv[1]))
+    # print(os.path.abspath(args.file))
+    config_file = (os.path.abspath(args.remmina))
 
 # initiate configparser 
 config = configparser.RawConfigParser()
@@ -96,3 +96,57 @@ for section in config.sections():
 # check keys
 # for key in sessions:
 #     print (key)
+
+if args.remmina:
+    os.path.join("remmina")
+    for key in sessions:
+        print(sessions)
+        values = sessions[key]
+        # print(type(values))
+    # config['remmina'] = {
+    #         'ssh_tunnel_loopback': 0,
+    #         'window_maximize': 0,
+    #         'protocol': values,
+    #         'name': self.name,
+    #         'username': self.username,
+    #         'password': self.password,
+    #         'ssh_proxycommand': '',
+    #         'ssh_passphrase': '',
+    #         'run_line': '',
+    #         'precommand': '',
+    #         'sshlogenabled': 0,
+    #         'ssh_tunnel_enabled': 0,
+    #         'ssh_charset': '',
+    #         'window_height': '480',
+    #         'keyboard_grab': '0',
+    #         'window_width': '640',
+    #         'ssh_auth': 0,
+    #         'ignore-tls-errors': 1,
+    #         'postcommand': '',
+    #         'server': server,
+    #         'disablepasswordstoring': 0,
+    #         'ssh_color_scheme': self.theme,
+    #         'audiblebell': 0,
+    #         'ssh_tunnel_username': '',
+    #         'sshsavesession': 0,
+    #         'ssh_hostkeytypes': '',
+    #         'ssh_tunnel_password': '',
+    #         'profile-lock': 0,
+    #         'sshlogfolder': '',
+    #         'group': self.group,
+    #         'ssh_tunnel_server': '',
+    #         'ssh_ciphers': '',
+    #         'enable-autostart': 0,
+    #         'ssh_kex_algorithms': '',
+    #         'ssh_compression': 0,
+    #         'ssh_tunnel_auth': 0,
+    #         'ssh_tunnel_certfile': '',
+    #         'notes_text': '',
+    #         'exec': '',
+    #         'viewmode': 1,
+    #         'sshlogname': '',
+    #         'ssh_tunnel_passphrase': '',
+    #         'ssh_tunnel_privatekey': '',
+    #         'ssh_stricthostkeycheck': 0,
+    #         'ssh_forward_x11': 0,
+    #     } 
