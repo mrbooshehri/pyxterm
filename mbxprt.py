@@ -1,4 +1,4 @@
-import os, sys, re, configparser, logging, argparse
+import os, re, configparser, logging, argparse, openssl
 
 # variables
 re_username = r'^\[.+\]$'
@@ -93,20 +93,18 @@ for section in config.sections():
             items.append(session)
     # add all sessions as a dictionary item
     sessions[group] = items
-# check keys
-# for key in sessions:
-#     print (key)
 
 if args.remmina:
     if not os.path.exists("remmina"):
         os.mkdir("remmina")
     for key in sessions:
         values = sessions[key]
+        config.clear()
         for item in values:
             config['remmina'] = {
                 'ssh_tunnel_loopback': 0,
                 'window_maximize': 0,
-                'protocol': item['port'],
+                'protocol': 'SSH',
                 'name': item['name'],
                 'username': item['username'],
                 'password': '',
@@ -154,3 +152,4 @@ if args.remmina:
             basename = key.replace("\\","_") if key != "" else "root"
             with open(f"remmina/{basename}-{item['name']}.remmina", 'w') as remmina_config_file:
                 config.write(remmina_config_file)
+
