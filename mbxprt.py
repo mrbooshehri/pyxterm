@@ -1,4 +1,4 @@
-import os, re, configparser, logging, argparse, openssl
+import os, re, configparser, logging, argparse, secrets
 
 # variables
 re_username = r'^\[.+\]$'
@@ -18,13 +18,14 @@ logging.basicConfig(filename='info.log',
                     datefmt='%H:%M:%S',
                     level=logging.DEBUG)
 
+mobaxfile = args.remmina if args.remmina != None else args.windterm
+
 # Get file from input
-if not os.path.exists(args.remmina):
+if not os.path.exists(mobaxfile):
     print("File not exists!")
     exit()
 else:
-    # print(os.path.abspath(args.file))
-    config_file = (os.path.abspath(args.remmina))
+    config_file = (os.path.abspath(mobaxfile))
 
 # initiate configparser 
 config = configparser.RawConfigParser()
@@ -152,4 +153,42 @@ if args.remmina:
             basename = key.replace("\\","_") if key != "" else "root"
             with open(f"remmina/{basename}-{item['name']}.remmina", 'w') as remmina_config_file:
                 config.write(remmina_config_file)
-
+elif args.windterm:
+    windconf = []
+    if not os.path.exists("windterm"):
+        os.mkdir("windterm")
+    for key in sessions:
+        values = sessions[key]
+        for item in values:
+            group = key.replace("\\",">") if key != "" else "root"
+            uuid = f"44550de3-ade3-411a-b85f-{secrets.token_hex(6)}"
+            windconf.append(
+                {
+                    "process.arguments" : "-i -l",
+                    "session.dataType" : "binary",
+                    # "process.workingDirectory" : "$(HomeDir)", 
+                    # "session.icon" : "session::'${logo}'",
+                    # "session.autoLogin" : "'${passwd}'", 
+                    # "session.logFilePath" : "/Users/junbys/Documents/WindTermLogs/%n_%Y-%m-%d_%H-%M-%S.log",
+                    "session.group" : group,
+                    "session.keepAlive" : 30,
+                    "session.label" : item['name'],
+                    "session.logType" : 14,
+                    "session.port" : item['port'],
+                    "session.protocol" : "SSH",
+                    "session.system" : "Linux",
+                    "session.target" : item['username'],
+                    "session.tcpKeepAlive" : "true",
+                    "session.uuid" : uuid,
+                    "terminal.autoWrapMode" : "true",
+                    "terminal.bellStyle" : 0,
+                    "terminal.eraseWithBackground" : "true",
+                    "terminal.newLineMode" : "false",
+                    "terminal.reverseScreenMode" : "false"
+                }
+            )
+    with open("windterm/user.sessions", 'w') as windterm_config_file:
+        windterm_config_file.write("[\n")
+        for item in windconf:
+            windterm_config_file.write(f"\t{item},\n")
+        windterm_config_file.write("]\n")
