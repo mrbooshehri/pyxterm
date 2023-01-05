@@ -1,4 +1,4 @@
-import os, re, configparser, logging, argparse, secrets, json
+import os, re, configparser, logging, argparse, secrets, json, shutil
 
 # variables
 re_username = r'^\[.+\]$'
@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser(prog="mbxprt", description="Mobxterm session pa
 # parser.add_argument("file", help="mobaxterm session export file")
 parser.add_argument("-w", "--windterm", help="Convert to windterm",  metavar="", required=False)
 parser.add_argument("-r", "--remmina", help="Convert to remmina", metavar="", required=False)
+parser.add_argument("-s", "--ssh", help="Convert to ssh config", metavar="", required=False)
 args = parser.parse_args()
 
 # logging
@@ -18,7 +19,16 @@ logging.basicConfig(filename='info.log',
                     datefmt='%H:%M:%S',
                     level=logging.DEBUG)
 
-mobaxfile = args.remmina if args.remmina != None else args.windterm
+# mobaxfile = args.remmina if args.remmina != None else args.windterm
+if args.remmina != None:
+    mobaxfile = args.remmina
+elif args.windterm != None:
+    mobaxfile = args.windterm
+elif args.ssh != None:
+    mobaxfile = args.ssh
+else:
+    parser.print_help()
+    exit()
 
 # Get file from input
 if not os.path.exists(mobaxfile):
@@ -191,3 +201,22 @@ elif args.windterm:
             )
     with open("windterm/user.sessions", 'w') as windterm_config_file:
         windterm_config_file.write(json.dumps(windconf))
+
+elif args.ssh:
+    if not os.path.exists("config.d"):
+        os.mkdir("config.d")
+    else:
+        os.remove
+        shutil.rmtree("config.d")
+        os.mkdir("config.d")
+    for key in sessions:
+        values = sessions[key]
+        path = key.replace("\\","/")
+        if not os.path.exists(f"config.d/{path}"):
+            os.mkdir(f"config.d/{path}")
+        for item in values:
+            with open(f"config.d/{path}/config", "a") as ssh_config_file:
+                ssh_config_file.write(f"Host\t{item['name']}\n")
+                ssh_config_file.write(f"\tHostname  \t{item['host']}\n")
+                if item['username'] != "":
+                    ssh_config_file.write(f"\tUser\t{item['username']}\n")
