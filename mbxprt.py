@@ -1,4 +1,4 @@
-import os, re, configparser, logging, argparse, secrets
+import os, re, configparser, logging, argparse, secrets, json
 
 # variables
 re_username = r'^\[.+\]$'
@@ -161,13 +161,15 @@ elif args.windterm:
         values = sessions[key]
         for item in values:
             group = key.replace("\\",">") if key != "" else "root"
-            uuid = f"44550de3-ade3-411a-b85f-{secrets.token_hex(6)}"
+            #uuid = f"44550de3-ade3-411a-b85f-{secrets.token_hex(6)}"
+            uuid = f"{secrets.token_hex(4)}-{secrets.token_hex(2)}-{secrets.token_hex(2)}-{secrets.token_hex(2)}-{secrets.token_hex(6)}"
+            target = f"{item['username']}@{item['host']}"
             windconf.append(
                 {
                     "process.arguments" : "-i -l",
                     "session.dataType" : "binary",
                     # "process.workingDirectory" : "$(HomeDir)", 
-                    # "session.icon" : "session::'${logo}'",
+                    "session.icon" : "session::linux",
                     # "session.autoLogin" : "'${passwd}'", 
                     # "session.logFilePath" : "/Users/junbys/Documents/WindTermLogs/%n_%Y-%m-%d_%H-%M-%S.log",
                     "session.group" : group,
@@ -176,8 +178,8 @@ elif args.windterm:
                     "session.logType" : 14,
                     "session.port" : item['port'],
                     "session.protocol" : "SSH",
-                    "session.system" : "Linux",
-                    "session.target" : item['username'],
+                    "session.system" : "linux",
+                    "session.target" : target,
                     "session.tcpKeepAlive" : "true",
                     "session.uuid" : uuid,
                     "terminal.autoWrapMode" : "true",
@@ -188,7 +190,4 @@ elif args.windterm:
                 }
             )
     with open("windterm/user.sessions", 'w') as windterm_config_file:
-        windterm_config_file.write("[\n")
-        for item in windconf:
-            windterm_config_file.write(f"\t{item},\n")
-        windterm_config_file.write("]\n")
+        windterm_config_file.write(json.dumps(windconf))
