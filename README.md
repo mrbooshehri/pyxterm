@@ -14,3 +14,12 @@ example:
 ```
 python3 mbxprt -w <file-name>.mobaxsession
 ```
+
+## Windterm config home
+```bash
+~/.wind/profiles/default.v10/terminal
+```
+## Remmina config home
+```bash
+~/.local/share/remmina
+```
